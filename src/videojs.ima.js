@@ -252,13 +252,21 @@ function ima(videojs) {
       this.adsLoaderTimeoutCheck();
     }.bind(this);
 
+    /**
+     * Listener for timeout errors fired by the AdsLoader.
+     *
+     * @private
+     */
+    this.onAdsLoaderTimeout = function() {
+      if (this.adsLoader && this.getAdsManager && !this.getAdsManager()){
+        window.console.log('AdsLoader timeout');
+        this.player.trigger('adsloadertimeout');
+      }
+    }.bind(this);
+
     this.adsLoaderTimeoutCheck = function(){
-      var self = this, timeout = this.settings.timeout;
-      setTimeout(function(){
-        if (self.adsLoader && self.getAdsManager && !self.getAdsManager()){
-          self.onAdsLoaderTimeout_(new CustomEvent(AD_LOADER_TIMEOUT, { "detail": { "timeout": timeout } }));
-        }
-      }, timeout);
+      var timeout = this.settings.timeout;
+      setTimeout(this.onAdsLoaderTimeout, timeout);
     }.bind(this);
 
     /**
@@ -371,16 +379,6 @@ function ima(videojs) {
         this.adsManager.destroy();
       }
       this.player.trigger({type: 'adsloadererror', data: { AdError: event.getError(), AdErrorEvent: event }});
-    }.bind(this);
-
-    /**
-     * Listener for timeout errors fired by the AdsLoader.
-     *
-     * @private
-     */
-    var onAdsLoaderTimeout_ = function(event) {
-      window.console.log('AdsLoader timeout: ' + event.detail.timeout);
-      this.player.trigger('adsloadertimeout');
     }.bind(this);
 
     /**
