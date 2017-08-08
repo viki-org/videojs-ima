@@ -17,6 +17,8 @@
  * https://www.github.com/googleads/videojs-ima
  */
 
+const AD_LOADER_TIMEOUT = 'viki_ads_loader_timeout';
+
 function ima(videojs) {
   'use strict';
   var extend = function(obj) {
@@ -247,6 +249,16 @@ function ima(videojs) {
           this.settings.nonLinearHeight || (this.getPlayerHeight() / 3);
 
       this.adsLoader.requestAds(adsRequest);
+      this.adsLoaderTimeoutCheck();
+    }.bind(this);
+
+    this.adsLoaderTimeoutCheck = function(){
+      var self = this, timeout = this.settings.timeout;
+      setTimeout(function(){
+        if (self.adsLoader && !self.getAdsManager()){
+          self.adsLoader.dispatchEvent(new CustomEvent(AD_LOADER_TIMEOUT, { "detail": { "timeout": timeout } }));
+        }
+      }, timeout);
     }.bind(this);
 
     /**
@@ -359,6 +371,16 @@ function ima(videojs) {
         this.adsManager.destroy();
       }
       this.player.trigger({type: 'adserror', data: { AdError: event.getError(), AdErrorEvent: event }});
+    }.bind(this);
+
+    /**
+     * Listener for timeout errors fired by the AdsLoader.
+     *
+     * @private
+     */
+    var onAdsLoaderTimeout_ = function(event) {
+      window.console.log('AdsLoader timeout: ' + event.detail.timeout);
+      this.player.trigger('adsloadertimeout');
     }.bind(this);
 
     /**
@@ -1395,6 +1417,10 @@ function ima(videojs) {
     this.adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       onAdsLoaderError_,
+      false);
+    this.adsLoader.addEventListener(
+      AD_LOADER_TIMEOUT,
+      onAdsLoaderTimeout_,
       false);
 
     if (!readyCallback) {
