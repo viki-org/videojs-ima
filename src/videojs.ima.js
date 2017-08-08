@@ -370,7 +370,7 @@ function ima(videojs) {
       if (this.adsManager) {
         this.adsManager.destroy();
       }
-      this.player.trigger({type: 'adserror', data: { AdError: event.getError(), AdErrorEvent: event }});
+      this.player.trigger({type: 'adsloadererror', data: { AdError: event.getError(), AdErrorEvent: event }});
     }.bind(this);
 
     /**
