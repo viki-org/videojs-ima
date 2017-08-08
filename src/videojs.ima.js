@@ -255,8 +255,8 @@ function ima(videojs) {
     this.adsLoaderTimeoutCheck = function(){
       var self = this, timeout = this.settings.timeout;
       setTimeout(function(){
-        if (self.adsLoader && !self.getAdsManager()){
-          self.adsLoader.dispatchEvent(new CustomEvent(AD_LOADER_TIMEOUT, { "detail": { "timeout": timeout } }));
+        if (self.adsLoader && self.getAdsManager && !self.getAdsManager()){
+          self.onAdsLoaderTimeout_(new CustomEvent(AD_LOADER_TIMEOUT, { "detail": { "timeout": timeout } }));
         }
       }, timeout);
     }.bind(this);
@@ -1417,10 +1417,6 @@ function ima(videojs) {
     this.adsLoader.addEventListener(
       google.ima.AdErrorEvent.Type.AD_ERROR,
       onAdsLoaderError_,
-      false);
-    this.adsLoader.addEventListener(
-      AD_LOADER_TIMEOUT,
-      onAdsLoaderTimeout_,
       false);
 
     if (!readyCallback) {
