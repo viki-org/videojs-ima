@@ -388,15 +388,12 @@ function ima(videojs) {
      * @private
      */
     var onAdError_ = function(adErrorEvent) {
-      var error = adErrorEvent
-      if (error.getError) {
-        error = AdErrorEvent.getError()
-      }
+      var error = adErrorEvent.getError !== undefined ? adErrorEvent.getError() : adErrorEvent
       window.console.log('Ad error: ' + error);
       this.vjsControls.show();
       this.adsManager.destroy();
       this.adContainerDiv.style.display = 'none';
-      this.player.trigger({ type: 'adserror', data: { AdError: adErrorEvent.getError(), AdErrorEvent: adErrorEvent }});
+      this.player.trigger({ type: 'adserror', data: { AdError: error, AdErrorEvent: adErrorEvent }});
     }.bind(this);
 
     /**
